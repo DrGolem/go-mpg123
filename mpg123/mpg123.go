@@ -15,6 +15,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"unsafe"
 )
@@ -47,6 +48,8 @@ const (
 // Contains a handle for and mpg123 decoder instance
 type Decoder struct {
 	handle *C.mpg123_handle
+
+	io.Seeker
 }
 
 // init initializes the mpg123 library when package is loaded
@@ -67,7 +70,7 @@ func init() {
 func NewDecoder(decoder string) (*Decoder, error) {
 	var err C.int
 	var mh *C.mpg123_handle
-	if decoder != "" {
+	if decoder == "" {
 		mh = C.mpg123_new(nil, &err)
 	} else {
 		cdecoder := C.CString(decoder)
@@ -185,4 +188,40 @@ func (d *Decoder) Feed(buf []byte) error {
 		return fmt.Errorf("mpg123 error: %s", d.strerror())
 	}
 	return nil
+}
+
+// const char* mpg123_current_decoder(mpg123_handle *mh)
+func (d *Decoder) CurrentDecoder() string {
+	dec := C.mpg123_current_decoder(d.handle)
+	return C.GoString(dec)
+}
+
+func (d *Decoder) Seek(offset int64, whence int) (int64, error) {
+	c_offset := (C.off_t)(offset)
+	c_whence := (C.int)(whence)
+	s_offset := (int64)(C.mpg123_seek(d.handle, c_offset, c_whence))
+	return s_offset, nil
+}
+
+// const char** mpg123_supported_decoders(void)
+func SupportedDecoders() []string {
+	dec := C.mpg123_supported_decoders()
+
+	var strings []string
+	q := uintptr(unsafe.Pointer(dec))
+	for {
+		dec = (**C.char)(unsafe.Pointer(q))
+		if *dec == nil {
+			break
+		}
+		strings = append(strings, C.GoString(*dec))
+		q += unsafe.Sizeof(q)
+	}
+
+	return strings
+}
+
+// off_t mpg123_tell(mpg123_handle *mh)
+func (d *Decoder) TellCurrentSample() int64 {
+	return int64(C.mpg123_tell(d.handle))
 }

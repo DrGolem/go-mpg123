@@ -6,7 +6,7 @@ go-mpg123 is a library that provides bindings to libmpg123.
 Not all library functions are present, but there are enough bindings to
 decode an MP3 file using mpg123_open and mpg123_read. However, decoding
 from a file reader and feeding data directly to the decoder are not yet
-supported. Seeking and meta-data reading are also not yet supported.
+supported. Meta-data reading are also not yet supported.
 
 This library is still very much a work in progress.
 
@@ -42,13 +42,21 @@ when EOF is returned, so check for errors after processing the buffer.
 		}
 	}
 
+Seek stream to sample from current position
+
+    // move forward for 11 sec
+    // multiply seconds to sample rate (44100 or 48000)
+    off := int64(11 * 44100)
+    whence := os.SEEK_CUR
+    pos, err := decoder.Seek(off, whence)
+
 Examples
 --------
 
 An example program is included in examples/mp3dump. This program decodes
 an MP3 file and writes the raw PCM data to a file.
 
-	go get github.com/bobertlo/go-mpg123/examples/mp3dump
+	go get github.com/DrGolem/go-mpg123/examples/mp3dump
 	mp3dump <file.mp3> <outfile.raw>
 
 This raw audio file may be played using mplayer:

@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/bobertlo/go-mpg123/mpg123"
 	"os"
+
+	"github.com/DrGolem/go-mpg123/mpg123"
 )
 
 func main() {
@@ -13,11 +14,15 @@ func main() {
 		return
 	}
 
+	fmt.Printf("Go binding to mpg123 library\n")
+	fmt.Printf("Supported decoders: %v\n", mpg123.SupportedDecoders())
+
 	// create mpg123 decoder instance
 	decoder, err := mpg123.NewDecoder("")
 	if err != nil {
 		panic("could not initialize mpg123")
 	}
+	defer decoder.Delete()
 
 	// open a file with decoder
 	err = decoder.Open(os.Args[1])
@@ -31,6 +36,7 @@ func main() {
 	fmt.Fprintln(os.Stderr, "Encoding: Signed 16bit")
 	fmt.Fprintln(os.Stderr, "Sample Rate:", rate)
 	fmt.Fprintln(os.Stderr, "Channels:", chans)
+	fmt.Fprintln(os.Stderr, "Decoder:", decoder.CurrentDecoder())
 
 	// make sure output format does not change
 	decoder.FormatNone()
@@ -53,5 +59,4 @@ func main() {
 		}
 	}
 	o.Close()
-	decoder.Delete()
 }
