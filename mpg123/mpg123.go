@@ -225,3 +225,13 @@ func SupportedDecoders() []string {
 func (d *Decoder) TellCurrentSample() int64 {
 	return int64(C.mpg123_tell(d.handle))
 }
+
+//  int mpg123_encsize	(	int 	encoding	)
+func GetEncodingBitsPerSample(encoding int) int {
+	return 8 * int(C.mpg123_encsize(C.int(encoding)))
+}
+
+//  off_t mpg123_length(mpg123_handle * 	mh)
+func (d *Decoder) GetLengthInPCMFrames() int {
+	return int(C.mpg123_length(d.handle))
+}
