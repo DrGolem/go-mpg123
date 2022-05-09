@@ -181,6 +181,21 @@ func (d *Decoder) Read(buf []byte) (int, error) {
 	return int(done), nil
 }
 
+func (d *Decoder) ReadAudioFrames(frames int, buf []byte) (int, error) {
+	var done C.size_t
+	_, _, enc := d.GetFormat()
+	bytesPerSample := GetEncodingBitsPerSample(enc) / 8
+	framesToBytes := bytesPerSample * frames
+	err := C.do_mpg123_read(d.handle, (unsafe.Pointer)(&buf[0]), C.size_t(framesToBytes), &done)
+	if err == C.MPG123_DONE {
+		return int(done), EOF
+	}
+	if err != C.MPG123_OK {
+		return int(done), fmt.Errorf("mpg123 error: %s", d.strerror())
+	}
+	return int(done), nil
+}
+
 // Feed provides data bytes into the decoder
 func (d *Decoder) Feed(buf []byte) error {
 	err := C.mpg123_feed(d.handle, (*C.uchar)(unsafe.Pointer(&buf[0])), C.size_t(len(buf)))
