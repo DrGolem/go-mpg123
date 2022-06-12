@@ -3,6 +3,7 @@
 package mpg123
 
 /*
+#define MPG123_ENUM_API 1
 #include <mpg123.h>
 #cgo LDFLAGS: -lmpg123
 
@@ -256,7 +257,7 @@ func (d *Decoder) GetLengthInPCMFrames() int {
 
 // Param sets a specific parameter on an mpg123 handle.
 func (d *Decoder) Param(paramType int, value int64, fvalue float64) error {
-	err := C.mpg123_param(d.handle, C.int(paramType), C.long(value), C.double(fvalue))
+	err := C.mpg123_param(d.handle, uint32(paramType), C.long(value), C.double(fvalue))
 	if err != C.MPG123_OK {
 		return fmt.Errorf("mpg123 error: %s", d.strerror())
 	}
