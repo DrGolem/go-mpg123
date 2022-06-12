@@ -43,6 +43,9 @@ const (
 	ENC_FLOAT_32    = C.MPG123_ENC_FLOAT_32
 	ENC_FLOAT_64    = C.MPG123_ENC_FLOAT_64
 	ENC_ANY         = C.MPG123_ENC_ANY
+
+	ADD_FLAGS = C.MPG123_ADD_FLAGS
+	QUIET     = C.MPG123_QUIET
 )
 
 // Contains a handle for and mpg123 decoder instance
@@ -249,4 +252,13 @@ func GetEncodingBitsPerSample(encoding int) int {
 //  off_t mpg123_length(mpg123_handle * 	mh)
 func (d *Decoder) GetLengthInPCMFrames() int {
 	return int(C.mpg123_length(d.handle))
+}
+
+// Param sets a specific parameter on an mpg123 handle.
+func (d *Decoder) Param(paramType int, value int64, fvalue float64) error {
+	err := C.mpg123_param(d.handle, C.int(paramType), C.long(value), C.double(fvalue))
+	if err != C.MPG123_OK {
+		return fmt.Errorf("mpg123 error: %s", d.strerror())
+	}
+	return nil
 }
