@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/DrGolem/go-mpg123/mpg123"
+	"github.com/drgolem/go-mpg123/mpg123"
 )
 
 func main() {

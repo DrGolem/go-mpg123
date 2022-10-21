@@ -56,9 +56,12 @@ Examples
 An example program is included in examples/mp3dump. This program decodes
 an MP3 file and writes the raw PCM data to a file.
 
-	go get github.com/DrGolem/go-mpg123/examples/mp3dump
+	go get github.com/drgolem/go-mpg123/examples/mp3dump
 	mp3dump <file.mp3> <outfile.raw>
 
 This raw audio file may be played using mplayer:
 
 	mplayer -demuxer rawaudio -rawaudio rate=<samplerate>:channels=<channels> out.raw
+
+    ffplay -ar 44100 -ac 2 -f s16le test_1.raw
+

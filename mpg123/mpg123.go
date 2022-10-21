@@ -118,15 +118,15 @@ func (d *Decoder) FormatAll() {
 }
 
 // GetFormat returns current output format
-func (d *Decoder) GetFormat() (rate int64, channels int, encoding int) {
+func (d *Decoder) GetFormat() (rate int, channels int, encoding int) {
 	var cRate C.long
 	var cChans, cEnc C.int
 	C.mpg123_getformat(d.handle, &cRate, &cChans, &cEnc)
-	return int64(cRate), int(cChans), int(cEnc)
+	return int(cRate), int(cChans), int(cEnc)
 }
 
 // Format sets the audio output format for decoder
-func (d *Decoder) Format(rate int64, channels int, encodings int) {
+func (d *Decoder) Format(rate int, channels int, encodings int) {
 	C.mpg123_format(d.handle, C.long(rate), C.int(channels), C.int(encodings))
 }
 
@@ -200,6 +200,14 @@ func (d *Decoder) ReadAudioFrames(frames int, buf []byte) (int, error) {
 	return int(done), nil
 }
 
+func (d *Decoder) DecodeSamples(samples int, audio []byte) (int, error) {
+	rLen, err := d.ReadAudioFrames(samples, audio)
+	if err == EOF {
+		return 0, nil
+	}
+	return (rLen / 4), nil
+}
+
 // Feed provides data bytes into the decoder
 func (d *Decoder) Feed(buf []byte) error {
 	err := C.mpg123_feed(d.handle, (*C.uchar)(unsafe.Pointer(&buf[0])), C.size_t(len(buf)))
@@ -245,12 +253,12 @@ func (d *Decoder) TellCurrentSample() int64 {
 	return int64(C.mpg123_tell(d.handle))
 }
 
-//  int mpg123_encsize	(	int 	encoding	)
+// int mpg123_encsize	(	int 	encoding	)
 func GetEncodingBitsPerSample(encoding int) int {
 	return 8 * int(C.mpg123_encsize(C.int(encoding)))
 }
 
-//  off_t mpg123_length(mpg123_handle * 	mh)
+// off_t mpg123_length(mpg123_handle * 	mh)
 func (d *Decoder) GetLengthInPCMFrames() int {
 	return int(C.mpg123_length(d.handle))
 }
