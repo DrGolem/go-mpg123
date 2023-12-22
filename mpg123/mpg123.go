@@ -3,6 +3,7 @@
 package mpg123
 
 /*
+#include <stdlib.h>
 #define MPG123_ENUM_API 1
 #include <mpg123.h>
 #cgo LDFLAGS: -lmpg123
