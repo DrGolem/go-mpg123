@@ -3,10 +3,10 @@
 package mpg123
 
 /*
+#cgo pkg-config: libmpg123
 #include <stdlib.h>
 #define MPG123_ENUM_API 1
 #include <mpg123.h>
-#cgo LDFLAGS: -lmpg123
 
 int do_mpg123_read(mpg123_handle *mh, void *outmemory, size_t outmemsize, size_t *done) {
 	return mpg123_read(mh, outmemory, outmemsize, done);
