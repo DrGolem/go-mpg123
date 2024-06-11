@@ -119,11 +119,14 @@ func (d *Decoder) FormatAll() {
 }
 
 // GetFormat returns current output format
-func (d *Decoder) GetFormat() (rate int, channels int, encoding int) {
+func (d *Decoder) GetFormat() (rate int, channels int, bitsPerSample int) {
 	var cRate C.long
 	var cChans, cEnc C.int
 	C.mpg123_getformat(d.handle, &cRate, &cChans, &cEnc)
-	return int(cRate), int(cChans), int(cEnc)
+
+	bitsPerSample = GetEncodingBitsPerSample(int(cEnc))
+
+	return int(cRate), int(cChans), bitsPerSample
 }
 
 // Format sets the audio output format for decoder
@@ -188,8 +191,8 @@ func (d *Decoder) Read(buf []byte) (int, error) {
 
 func (d *Decoder) ReadAudioFrames(frames int, buf []byte) (int, error) {
 	var done C.size_t
-	_, channels, enc := d.GetFormat()
-	bytesPerSample := GetEncodingBitsPerSample(enc) / 8
+	_, channels, bitsPerSample := d.GetFormat()
+	bytesPerSample := bitsPerSample / 8
 	framesToBytes := bytesPerSample * frames * channels
 	err := C.do_mpg123_read(d.handle, (unsafe.Pointer)(&buf[0]), C.size_t(framesToBytes), &done)
 	if err == C.MPG123_DONE {
